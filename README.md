@@ -40,3 +40,6 @@ cd LiveEditor/backend
 
 # Run the backend
 go run main.go
+
+#Run the frontend
+npm start
