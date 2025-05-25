@@ -3,6 +3,7 @@ package document
 import (
 	"encoding/json"
 	"log"
+	"strings"
 
 	"github.com/c1te/collab/backend/redisclient"
 	"github.com/c1te/collab/backend/server"
@@ -30,19 +31,21 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 		log.Println("Error Unmarshalling edit:", err)
 		return err
 	}
-
+	log.Printf("Unmarshalled edit: %+v", edit)
 	doc, err := redisclient.Client.Get(redisclient.Ctx, sessionID).Result()
 
 	if err == redis.Nil {
 		log.Printf("Session Does Not Exist, initializing new document")
+		doc = ""
 	} else if err != nil {
 		log.Println("Redis GET error:", err)
 		return err
 	}
-
-	switch edit.Action {
+	action := strings.TrimSpace(strings.ToLower(edit.Action))
+	switch action {
 	case "insert":
 		if edit.Position >= 0 && edit.Position <= len(doc) {
+			log.Printf("inpos:%d:%s", edit.Position, edit.Action)
 			doc = doc[:edit.Position] + edit.Text + doc[edit.Position:]
 		}
 	case "delete":
@@ -54,7 +57,11 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 			doc = doc[:edit.Position] + edit.Text + doc[edit.Position+edit.Length:]
 		}
 	case "sync":
-		fullDoc, _ := GetDocument(sessionID)
+		fullDoc, err := GetDocument(sessionID)
+		if err != nil {
+			log.Println("Error fetching document during sync:", err)
+			return err
+		}
 		syncMsg := Edit{Action: "sync", Text: fullDoc}
 		syncData, _ := json.Marshal(syncMsg)
 		BroadCastClient(sessionID, client, syncData)
@@ -63,7 +70,6 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 		log.Println("Unknown Action:", edit.Action)
 		return nil
 	}
-
 	if err := redisclient.Client.Set(redisclient.Ctx, sessionID, doc, 0).Err(); err != nil {
 		log.Println("Error Saving Document To Redis:", err)
 	}
@@ -74,7 +80,13 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 }
 
 func GetDocument(sessionID string) (string, error) {
-	return redisclient.Client.Get(redisclient.Ctx, sessionID).Result()
+	doc, err := redisclient.Client.Get(redisclient.Ctx, sessionID).Result()
+	if err == redis.Nil {
+		return "", nil
+	} else if err != nil {
+		return "", err
+	}
+	return doc, nil
 }
 
 func BroadCastClients(sessionID string, client *server.Client, message []byte) {
