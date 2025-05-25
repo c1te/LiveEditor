@@ -11,7 +11,6 @@ const TextWindow = () => {
     const editorRef = useRef<any>(null);
     const socketRef = useSocket();
     const remoteUpdateRef = useRemoteUpdate();
-
     useEffect(()=>{
         syncMessage();
         // eslint-disable-next-line
@@ -47,7 +46,7 @@ const TextWindow = () => {
         event.changes.forEach((change)=>{
             const {rangeOffset, rangeLength, text} = change;
             if(text && rangeLength === 0){
-                sendMessage({ action: "insert", text, position: rangeOffset, length: 0 });
+                sendMessage({ action: "insert", text, position: Math.max(rangeOffset-1,0) , length: 0 });
             }else if(!text && rangeLength > 0){
                 sendMessage({ action: "delete", text: "", position: rangeOffset, length: rangeLength });
             }else if(text && rangeLength > 0){
