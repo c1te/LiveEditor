@@ -9,8 +9,10 @@ package redisclient
 
 import (
 	"context"
+	"crypto/tls"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/redis/go-redis/v9"
 )
@@ -18,16 +20,16 @@ import (
 var (
 	Ctx           = context.Background()
 	Client        *redis.Client
-	redisUrl      = "amused-mosquito-18136.upstash.io:6379"
-	redisPassword = "AUbYAAIjcDEwMTJlNjZiMTNlOTk0OGVlYTY0NDMzNmQ5MTNjYTRmYnAxMA"
+	redisUrl      = os.Getenv("DB_URL")
+	redisPassword = os.Getenv("DB_PASS")
 )
 
 func Init() {
 	Client = redis.NewClient(&redis.Options{
-		Addr: "localhost:6379",
-		//Password:  redisPassword,
-		//DB:        0,             //use default DB , change no. if using multi DB setup
-		//TLSConfig: &tls.Config{}, //specifies to use tls https
+		Addr:      redisUrl,
+		Password:  redisPassword,
+		DB:        0,             //use default DB , change no. if using multi DB setup
+		TLSConfig: &tls.Config{}, //specifies to use tls https
 	})
 	pong, err := Client.Ping(Ctx).Result()
 	if err != nil {
