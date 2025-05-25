@@ -31,7 +31,6 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 		log.Println("Error Unmarshalling edit:", err)
 		return err
 	}
-	log.Printf("Unmarshalled edit: %+v", edit)
 	doc, err := redisclient.Client.Get(redisclient.Ctx, sessionID).Result()
 
 	if err == redis.Nil {
@@ -45,7 +44,6 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 	switch action {
 	case "insert":
 		if edit.Position >= 0 && edit.Position <= len(doc) {
-			log.Printf("inpos:%d:%s", edit.Position, edit.Action)
 			doc = doc[:edit.Position] + edit.Text + doc[edit.Position:]
 		}
 	case "delete":
