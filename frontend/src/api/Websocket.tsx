@@ -32,7 +32,8 @@ const handleMessage = (message: Message, setCode: React.Dispatch<React.SetStateA
 };
 
 export const InitWebSocket = (sessionID: string, socketRef: React.RefObject<WebSocket | null>, setCode: React.Dispatch<React.SetStateAction<string>>,remoteUpdateRef: React.RefObject<boolean | null>, navigate: (to: string) => void ) => {
-    socketRef.current = new WebSocket(`ws://localhost:8080/ws?session=${sessionID}`);
+    const wsURL = process.env.WS_URL;
+    socketRef.current = new WebSocket(`${wsURL}?session=${sessionID}`);
 
     
 
