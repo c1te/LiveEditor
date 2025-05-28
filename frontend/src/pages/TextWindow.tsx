@@ -80,6 +80,33 @@ const TextWindow = () => {
                         selectOnLineNumbers: true,
                         renderLineHighlight: 'all',
                         automaticLayout: true,
+                        suggestOnTriggerCharacters: false,
+                        quickSuggestions: false,
+                        parameterHints: {
+                            enabled: false,
+                        },
+                        wordBasedSuggestions: "off",
+                        suggest: {
+                            snippetsPreventQuickSuggestions: false,
+                            showWords: false,
+                            showSnippets: false,
+                            showFunctions: false,
+                            showVariables: false,
+                            showModules: false,
+                            showClasses: false,
+                            showStructs: false,
+                            showInterfaces: false,
+                            showEnums: false,
+                            showMethods: false,
+                            showFields: false,
+                            showEvents: false,
+                            showConstants: false,
+                            showProperties: false,
+                            showOperators: false,
+                            showUnits: false,
+                            showValues: false,
+                            showKeywords: false,
+                        }
                     }}
                 />
             </div>
