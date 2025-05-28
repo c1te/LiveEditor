@@ -41,6 +41,7 @@ func HandleDocumentEdit(sessionID string, client *server.Client, editMsg []byte)
 		return err
 	}
 	action := strings.TrimSpace(strings.ToLower(edit.Action))
+	log.Printf(edit.Text)
 	switch action {
 	case "insert":
 		if edit.Position >= 0 && edit.Position <= len(doc) {
